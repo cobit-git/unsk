@@ -52,7 +52,7 @@ class Clock(QWidget):
 
         # create the label that holds the ciren
         self.ciren_width = 100
-        self.ciren_height = 100
+        self.ciren_height = 100    # 
         self.ciren_label = QLabel(self)
         self.ciren_label.setStyleSheet("border: 2px solid black;")
         self.ciren_label.move(100, 50)
