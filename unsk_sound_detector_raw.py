@@ -5,6 +5,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
 
+from unsk_sound_thread import SoundDetector, UnskData
+from threading import Timer
+
 # creating a clock class
 class Unsk(QWidget):
 
@@ -24,6 +27,7 @@ class Unsk(QWidget):
         self.d_clock_label = QLabel(self)
         self.d_clock_label.setMinimumHeight(50)
         self.d_clock_label.setMinimumWidth(200)
+        self.d_clock_label.setAlignment(QtCore.Qt.AlignCenter)
         self.d_clock_label.setFont(font)
         self.d_clock_label.setStyleSheet("border: 1px solid black;background-color: yellow;")
         #self.d_clock_label.move(0, 0)
@@ -38,6 +42,9 @@ class Unsk(QWidget):
         self.distance_label = QLabel(self)
         self.distance_label.setMinimumHeight(50)
         self.distance_label.setMinimumWidth(200)
+        self.distance_label.setFont(font)
+        self.distance_label.setAlignment(QtCore.Qt.AlignRight)
+        self.distance_label.setText(str(0))
         self.distance_label.setStyleSheet("border: 1px solid black;")
         #self.distance_label.move(200, 0)
         #self.distance_label.resize(self.distance_width, self.distance_height)
@@ -135,6 +142,10 @@ class Unsk(QWidget):
         v_box.addWidget(self.clock_label)
         v_box.addWidget(self.wave_label)
         self.setLayout(v_box)
+
+        self.thread = SoundDetector()
+        self.thread.sound_signal.connect(self.update_signal)
+        self.thread.start()
     
     # method called by timer
     def showTime(self):
@@ -148,28 +159,55 @@ class Unsk(QWidget):
         # showing it to the label
         self.d_clock_label.setText(label_time)
 
+    @pyqtSlot(UnskData)
+    def update_signal(self, signal_packet):
+        print(signal_packet.code, signal_packet.distance)
+        if signal_packet.code == 0:
+            self.distance_label.setText(str(signal_packet.distance))
+            self.clock_label.distance = signal_packet.distance
+            self.clock_label.isClock = False
+            self.crash_label.setPixmap(self.ciren_pix_s)
+            self.run_once(self.reset_pixmap)
+
+    def run_once(self, func):  
+        t=Timer(3, func)  
+        t.start()#Here run is called  
+
+    def reset_pixmap(self):
+        self.crash_label.setPixmap(self.crash_pix_s)
+        self.clock_label.isClock = True
+
 class Clock(QLabel):
     # constructor
     def __init__(self):
         super().__init__()
         timer = QTimer(self)
         timer.timeout.connect(self.update)
-        timer.start(1000)
+        timer.start(100)
 
         # creating hour hand
-        self.hPointer = QtGui.QPolygon([QPoint(6, 7),QPoint(-6, 7),QPoint(0, -50)])
+        self.hPointer = QtGui.QPolygon([QPoint(3, 7),QPoint(-3, 7),QPoint(-3, -50), QPoint(3, -50)])
         # creating minute hand
-        self.mPointer = QPolygon([QPoint(6, 7),QPoint(-6, 7),QPoint(0, -70)])
+        self.mPointer = QPolygon([QPoint(2, 7),QPoint(-2, 7),QPoint(-2, -70), QPoint(2, -70)])
         # creating second hand
-        self.sPointer = QPolygon([QPoint(1, 1),QPoint(-1, 1),QPoint(0, -90)])
+        self.sPointer = QPolygon([QPoint(1, 1),QPoint(-1, 1),QPoint(-1, -90), QPoint(1, -90)])
         # color for minute and hour hand
-        self.bColor = Qt.green
-        # color for second hand
-        self.sColor = Qt.red
+        self.dPointer = QPolygon([QPoint(2, 9),QPoint(-2, 9),QPoint(-2, -80), QPoint(2, -80)])
+        # color for minute and hour hand
+        self.hColor = Qt.red
+        self.mColor = Qt.blue
+        self.sColor = Qt.yellow
+        self.bColor = Qt.black
+        self.dColor = Qt.green
+
+        self.distance  = 0
+
+        self.isClock = True
 
     def paintEvent(self, event):
         # so that clock remain square
         rec = min(self.width(), self.height())
+        #if self.isClock: 
         # getting current time
         tik = QTime.currentTime()
         # creating a painter object
@@ -195,9 +233,12 @@ class Clock(QLabel):
         # set current pen as no pen
         painter.setPen(QtCore.Qt.NoPen)
         # draw each hand
-        drawPointer(self.bColor, (30 * (tik.hour() + tik.minute() / 60)), self.hPointer)
-        drawPointer(self.bColor, (6 * (tik.minute() + tik.second() / 60)), self.mPointer)
-        drawPointer(self.sColor, (6 * tik.second()), self.sPointer)
+        if self.isClock == True:
+            drawPointer(self.hColor, (30 * (tik.hour() + tik.minute() / 60)), self.hPointer)
+            drawPointer(self.mColor, (6 * (tik.minute() + tik.second() / 60)), self.mPointer)
+            drawPointer(self.sColor, (6 * tik.second()), self.sPointer)
+        else:
+            drawPointer(self.dColor, self.distance * 2, self.dPointer)
         # drawing background
         painter.setPen(QPen(self.bColor))
         # for loop
@@ -209,6 +250,7 @@ class Clock(QLabel):
             painter.rotate(6)
         # ending the painter
         painter.end()
+        
 
 class Wave(QLabel):
     def __init__(self):
