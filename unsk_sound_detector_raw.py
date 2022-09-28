@@ -4,6 +4,8 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
+import random
+import numpy as np
 
 from unsk_sound_thread import SoundDetector, UnskData
 from threading import Timer
@@ -145,6 +147,7 @@ class Unsk(QWidget):
 
         self.thread = SoundDetector()
         self.thread.sound_signal.connect(self.update_signal)
+        self.thread.sound_signal.connect(self.wave_label.update_signal_wave)
         self.thread.start()
     
     # method called by timer
@@ -250,8 +253,33 @@ class Clock(QLabel):
             painter.rotate(6)
         # ending the painter
         painter.end()
-        
 
+    
+class Wave(QLabel):
+    def __init__(self):
+        super().__init__()
+        self.sound = np.ones(100)
+   
+    def paintEvent(self, event):
+        self.painter = QPainter()
+        self.painter.begin(self)
+        self.drawWave()
+        self.painter.end()
+
+    def drawWave(self):
+        print("siva")
+        pen = QPen(Qt.black, 3)
+        self.painter.setPen(pen)
+        for i in range(1, 100):
+            self.painter.drawLine(5*i, 100-5, 5*i, 100-self.sound[i])
+
+    @pyqtSlot(UnskData)  # receive unsk sound detector event 
+    def update_signal_wave(self, signal_packet):
+        print('wave', signal_packet.code, signal_packet.distance)
+        self.sound = signal_packet.sound
+        self.update()  # to call paintEvent()
+       
+'''
 class Wave(QLabel):
     def __init__(self):
         super().__init__()
@@ -270,7 +298,7 @@ class Wave(QLabel):
         qp.setPen(QColor(168, 34, 3))
         qp.setFont(QFont('Decorative', 10))
         qp.drawText(event.rect(), Qt.AlignCenter, self.text)
-
+'''
 # Driver code
 if __name__ == '__main__':
     app = QApplication(sys.argv)
