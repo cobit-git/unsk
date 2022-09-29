@@ -259,6 +259,7 @@ class Wave(QLabel):
     def __init__(self):
         super().__init__()
         self.sound = np.ones(100)
+        self.isUniqueSound = False
    
     def paintEvent(self, event):
         self.painter = QPainter()
@@ -275,9 +276,21 @@ class Wave(QLabel):
 
     @pyqtSlot(UnskData)  # receive unsk sound detector event 
     def update_signal_wave(self, signal_packet):
-        print('wave', signal_packet.code, signal_packet.distance)
-        self.sound = signal_packet.sound
-        self.update()  # to call paintEvent()
+        if signal_packet.code == 1 and self.isUniqueSound == False:
+            self.sound = signal_packet.sound
+            self.update()  # to call paintEvent()
+        elif signal_packet.code == 0:
+            self.isUniqueSound = True
+            self.sound = signal_packet.sound
+            self.run_once(self.clear_unique)
+            self.update() 
+        
+    def run_once(self, func):  
+        t=Timer(3, func)  
+        t.start()#Here run is called  
+
+    def clear_unique(self):
+        self.isUniqueSound = False
        
 '''
 class Wave(QLabel):
