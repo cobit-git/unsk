@@ -28,15 +28,16 @@ class SoundDetector(QThread):
             time.sleep(0.01)
             self.count += 1
             if self.count > 1000: 
-                self.signal_packet.code  = 0 #random.randint(0,3)
-                self.signal_packet.distance = random.randint(50, 130)
+                self.signal_packet.code  =  random.randint(0, 3)
+                self.signal_packet.distance = random.randint(50,130)
                 for i in range(100):
                     self.signal_packet.sound[i] = random.randint(10, 90)
                 self.sound_signal.emit(self.signal_packet)
                 self.count = 0
             else:
-                sound_common.append(sound_common.pop(0))
-                self.signal_packet.code  = 1 #random.randint(0,3)
+                sound_common.pop(0)
+                sound_common.append(random.randint(10, 90))
+                self.signal_packet.code  = 4
                 for i in range(100):
                     self.signal_packet.sound[i] = sound_common[i]
                 self.sound_signal.emit(self.signal_packet)

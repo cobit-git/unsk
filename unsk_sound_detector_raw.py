@@ -31,7 +31,7 @@ class Unsk(QWidget):
         self.d_clock_label.setMinimumWidth(200)
         self.d_clock_label.setAlignment(QtCore.Qt.AlignCenter)
         self.d_clock_label.setFont(font)
-        self.d_clock_label.setStyleSheet("border: 1px solid black;background-color: yellow;")
+        self.d_clock_label.setStyleSheet("background: lightgray;")
         #self.d_clock_label.move(0, 0)
         #self.d_clock_label.resize(self.d_clock_width, self.d_clock_height)
         timer = QTimer(self)
@@ -46,8 +46,10 @@ class Unsk(QWidget):
         self.distance_label.setMinimumWidth(200)
         self.distance_label.setFont(font)
         self.distance_label.setAlignment(QtCore.Qt.AlignRight)
-        self.distance_label.setText(str(0))
-        self.distance_label.setStyleSheet("border: 1px solid black;")
+        self.distance_label.setText(str(0)+' m')
+        #self.distance_label.setStyleSheet("border: 1px solid black;background: light gray;")
+        self.distance_label.setStyleSheet("background: lightgray;")
+        
         #self.distance_label.move(200, 0)
         #self.distance_label.resize(self.distance_width, self.distance_height)
 
@@ -61,7 +63,7 @@ class Unsk(QWidget):
         self.horn_pix_s = self.horn_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.horn_label.setPixmap(self.horn_pix_s)
         self.horn_label.setAlignment(Qt.AlignCenter)
-        self.horn_label.setStyleSheet("border: 1px solid black;")
+        self.horn_label.setStyleSheet("background: lightgray;")
         #self.horn_label.move(0, 50)
         #self.horn_label.resize(self.horn_width, self.horn_height)
 
@@ -75,7 +77,7 @@ class Unsk(QWidget):
         self.ciren_pix_s = self.ciren_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.ciren_label.setPixmap(self.ciren_pix_s)
         self.ciren_label.setAlignment(Qt.AlignCenter)
-        self.ciren_label.setStyleSheet("border: 1px solid black;")
+        self.ciren_label.setStyleSheet("background: lightgray;")
         #self.ciren_label.move(100, 50)
         #self.ciren_label.resize(self.ciren_width, self.ciren_height)
 
@@ -89,7 +91,7 @@ class Unsk(QWidget):
         self.bike_pix_s = self.bike_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.bike_label.setPixmap(self.bike_pix_s)
         self.bike_label.setAlignment(Qt.AlignCenter)
-        self.bike_label.setStyleSheet("border: 1px solid black;")
+        self.bike_label.setStyleSheet("background: lightgray;")
         #self.bike_label.move(200, 50)
         #self.bike_label.resize(self.bike_width, self.bike_height)
 
@@ -103,7 +105,7 @@ class Unsk(QWidget):
         self.crash_pix_s = self.crash_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.crash_label.setPixmap(self.crash_pix_s)
         self.crash_label.setAlignment(Qt.AlignCenter)
-        self.crash_label.setStyleSheet("border: 1px solid black;")
+        self.crash_label.setStyleSheet("background: lightgray;")
         #self.crash_label.move(300, 50)
         #self.crash_label.resize(self.crash_width, self.ciren_height)
 
@@ -114,7 +116,7 @@ class Unsk(QWidget):
         self.clock_label = Clock()
         self.clock_label.setMinimumHeight(400)
         self.clock_label.setMinimumWidth(400)
-        self.clock_label.setStyleSheet("border: 1px solid black;")
+        self.clock_label.setStyleSheet("background: lightgray;")
         #self.clock_label.move(0, 150)
         #self.clock_label.resize(self.clock_width, self.clock_height)
     
@@ -125,7 +127,7 @@ class Unsk(QWidget):
         self.wave_label = Wave()
         self.wave_label.setMinimumHeight(100)
         self.wave_label.setMinimumWidth(400)
-        self.wave_label.setStyleSheet("border: 1px solid black;")
+        self.wave_label.setStyleSheet("background: lightgray;")
         #self.wave_label.move(0, 150)
         #self.wave_label.resize(self.wave_width, self.wave_height)
     
@@ -155,30 +157,58 @@ class Unsk(QWidget):
   
         # getting current time
         current_time = QTime.currentTime()
-  
         # converting QTime object to string
         label_time = current_time.toString('hh:mm:ss')
-  
         # showing it to the label
         self.d_clock_label.setText(label_time)
 
     @pyqtSlot(UnskData)
     def update_signal(self, signal_packet):
-        print(signal_packet.code, signal_packet.distance)
         if signal_packet.code == 0:
-            self.distance_label.setText(str(signal_packet.distance))
+            self.distance_label.setText(str(signal_packet.distance)+" m")
             self.clock_label.distance = signal_packet.distance
             self.clock_label.isClock = False
-            self.crash_label.setPixmap(self.ciren_pix_s)
-            self.run_once(self.reset_pixmap)
+            self.horn_label.setStyleSheet("Background: yellow;")
+            self.clock_label.setStyleSheet("Background: white;")
+            self.run_once(self.reset_bg, signal_packet.code)
+        elif signal_packet.code == 1:
+            self.distance_label.setText(str(signal_packet.distance)+" m")
+            self.clock_label.distance = signal_packet.distance
+            self.clock_label.isClock = False
+            self.ciren_label.setStyleSheet("Background: yellow;")
+            self.clock_label.setStyleSheet("Background: white;")
+            self.run_once(self.reset_bg, signal_packet.code)
+        elif signal_packet.code == 2:
+            self.distance_label.setText(str(signal_packet.distance)+" m")
+            self.clock_label.distance = signal_packet.distance
+            self.clock_label.isClock = False
+            self.bike_label.setStyleSheet("Background: yellow;")
+            self.clock_label.setStyleSheet("Background: white;")
+            self.run_once(self.reset_bg, signal_packet.code)
+        elif signal_packet.code == 3:
+            self.distance_label.setText(str(signal_packet.distance)+" m")
+            self.clock_label.distance = signal_packet.distance
+            self.clock_label.isClock = False
+            self.crash_label.setStyleSheet("Background: yellow;")
+            self.clock_label.setStyleSheet("Background: white;")
+            self.run_once(self.reset_bg, signal_packet.code)
 
-    def run_once(self, func):  
-        t=Timer(3, func)  
-        t.start()#Here run is called  
-
-    def reset_pixmap(self):
-        self.crash_label.setPixmap(self.crash_pix_s)
+  
+    def reset_bg(self, code):
+        self.clock_label.setStyleSheet("Background: lightgray;")
+        if code == 0:
+            self.horn_label.setStyleSheet("Background: lightgray;")
+        elif code == 1:
+            self.ciren_label.setStyleSheet("Background: lightgray;")
+        elif code == 2:
+            self.bike_label.setStyleSheet("Background: lightgray;")
+        elif code == 3:
+            self.crash_label.setStyleSheet("Background: lightgray;")
         self.clock_label.isClock = True
+
+    def run_once(self, func, code):  
+        t=Timer(3, func, [code])  
+        t.start()#Here run is called  
 
 class Clock(QLabel):
     # constructor
@@ -245,12 +275,25 @@ class Clock(QLabel):
         # drawing background
         painter.setPen(QPen(self.bColor))
         # for loop
-        for i in range(0, 60):
-            # drawing background lines
-            if (i % 5) == 0:
-                painter.drawLine(87, 0, 97, 0)
-            # rotating the painter
-            painter.rotate(6)
+        if self.isClock == True:
+            for i in range(0, 60):
+                # drawing background lines
+                if (i % 5) == 0:
+                    painter.drawLine(87, 0, 97, 0)
+                # rotating the painter
+                painter.rotate(6)
+                painter.setBrush(QBrush(self.bColor))
+                painter.drawEllipse(-5, -5, 10, 10)
+        else:
+            for i in range(0, 60):
+                # drawing background lines
+                if (i % 2) == 0:
+                    painter.drawLine(87, 0, 97, 0)
+                # rotating the painter
+                painter.rotate(6)
+                painter.setBrush(QBrush(self.hColor))
+                painter.drawEllipse(-5, -5, 10, 10)
+    
         # ending the painter
         painter.end()
 
@@ -268,7 +311,6 @@ class Wave(QLabel):
         self.painter.end()
 
     def drawWave(self):
-        print("siva")
         pen = QPen(Qt.black, 3)
         self.painter.setPen(pen)
         for i in range(1, 100):
@@ -276,10 +318,12 @@ class Wave(QLabel):
 
     @pyqtSlot(UnskData)  # receive unsk sound detector event 
     def update_signal_wave(self, signal_packet):
-        if signal_packet.code == 1 and self.isUniqueSound == False:
+        # NOT detecting status 
+        if signal_packet.code == 4 and self.isUniqueSound == False:
             self.sound = signal_packet.sound
             self.update()  # to call paintEvent()
-        elif signal_packet.code == 0:
+        # detecting status 
+        elif self.isUniqueSound == False:
             self.isUniqueSound = True
             self.sound = signal_packet.sound
             self.run_once(self.clear_unique)
@@ -292,26 +336,6 @@ class Wave(QLabel):
     def clear_unique(self):
         self.isUniqueSound = False
        
-'''
-class Wave(QLabel):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.text = "Лев Николаевич Толстой\nАнна Каренина"
-
-    def paintEvent(self, event):
-        qp = QPainter()
-        qp.begin(self)
-        self.drawText(event, qp)
-        qp.end()
-
-    def drawText(self, event, qp):
-        qp.setPen(QColor(168, 34, 3))
-        qp.setFont(QFont('Decorative', 10))
-        qp.drawText(event.rect(), Qt.AlignCenter, self.text)
-'''
 # Driver code
 if __name__ == '__main__':
     app = QApplication(sys.argv)
