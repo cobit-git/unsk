@@ -37,9 +37,10 @@ class SoundDetector(QThread):
             else:
                 sound_common.pop(0)
                 sound_common.append(random.randint(10, 90))
+                
                 self.signal_packet.code  = 4
                 for i in range(100):
-                    self.signal_packet.sound[i] = sound_common[i]
+                    self.signal_packet.sound[99-i] = sound_common[i]
                 self.sound_signal.emit(self.signal_packet)
 
 

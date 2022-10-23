@@ -59,11 +59,13 @@ class Unsk(QWidget):
         self.horn_label = QLabel(self)
         self.horn_label.setMinimumHeight(100)
         self.horn_label.setMinimumWidth(100)
-        self.horn_pix = QPixmap('horn.png')
+        self.horn_pix = QPixmap('claxon1.png')
         self.horn_pix_s = self.horn_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.horn_pix_2 = QPixmap('claxon3.png')
+        self.horn_pix_2_s = self.horn_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.horn_label.setPixmap(self.horn_pix_s)
         self.horn_label.setAlignment(Qt.AlignCenter)
-        self.horn_label.setStyleSheet("background: lightgray;")
+        self.horn_label.setStyleSheet("background: white;")
         #self.horn_label.move(0, 50)
         #self.horn_label.resize(self.horn_width, self.horn_height)
 
@@ -73,11 +75,13 @@ class Unsk(QWidget):
         self.ciren_label = QLabel(self)
         self.ciren_label.setMinimumHeight(100)
         self.ciren_label.setMinimumWidth(100)
-        self.ciren_pix = QPixmap('ciren.png')
+        self.ciren_pix = QPixmap('siren1.png')
         self.ciren_pix_s = self.ciren_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.ciren_pix_2 = QPixmap('siren3.png')
+        self.ciren_pix_2_s = self.ciren_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.ciren_label.setPixmap(self.ciren_pix_s)
         self.ciren_label.setAlignment(Qt.AlignCenter)
-        self.ciren_label.setStyleSheet("background: lightgray;")
+        self.ciren_label.setStyleSheet("background: white;")
         #self.ciren_label.move(100, 50)
         #self.ciren_label.resize(self.ciren_width, self.ciren_height)
 
@@ -87,11 +91,13 @@ class Unsk(QWidget):
         self.bike_label = QLabel(self)
         self.bike_label.setMinimumHeight(100)
         self.bike_label.setMinimumWidth(100)
-        self.bike_pix = QPixmap('bike.png')
+        self.bike_pix = QPixmap('motorcycle1.png')
         self.bike_pix_s = self.bike_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.bike_pix_2 = QPixmap('motorcycle3.png')
+        self.bike_pix_2_s = self.bike_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.bike_label.setPixmap(self.bike_pix_s)
         self.bike_label.setAlignment(Qt.AlignCenter)
-        self.bike_label.setStyleSheet("background: lightgray;")
+        self.bike_label.setStyleSheet("background: white;")
         #self.bike_label.move(200, 50)
         #self.bike_label.resize(self.bike_width, self.bike_height)
 
@@ -101,11 +107,13 @@ class Unsk(QWidget):
         self.crash_label = QLabel(self)
         self.crash_label.setMinimumHeight(100)
         self.crash_label.setMinimumWidth(100)
-        self.crash_pix = QPixmap('crash.png')
+        self.crash_pix = QPixmap('carcrash1.png')
         self.crash_pix_s = self.crash_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.crash_pix_2 = QPixmap('carcrash3.png')
+        self.crash_pix_2_s = self.crash_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.crash_label.setPixmap(self.crash_pix_s)
         self.crash_label.setAlignment(Qt.AlignCenter)
-        self.crash_label.setStyleSheet("background: lightgray;")
+        self.crash_label.setStyleSheet("background: white;")
         #self.crash_label.move(300, 50)
         #self.crash_label.resize(self.crash_width, self.ciren_height)
 
@@ -168,42 +176,50 @@ class Unsk(QWidget):
             self.distance_label.setText(str(signal_packet.distance)+" m")
             self.clock_label.distance = signal_packet.distance
             self.clock_label.isClock = False
+            self.horn_label.setPixmap(self.horn_pix_2_s)
             self.horn_label.setStyleSheet("Background: yellow;")
-            self.clock_label.setStyleSheet("Background: white;")
+            #self.clock_label.setStyleSheet("Background: white;")
             self.run_once(self.reset_bg, signal_packet.code)
         elif signal_packet.code == 1:
             self.distance_label.setText(str(signal_packet.distance)+" m")
             self.clock_label.distance = signal_packet.distance
             self.clock_label.isClock = False
+            self.ciren_label.setPixmap(self.ciren_pix_2_s)
             self.ciren_label.setStyleSheet("Background: yellow;")
-            self.clock_label.setStyleSheet("Background: white;")
+            #self.clock_label.setStyleSheet("Background: white;")
             self.run_once(self.reset_bg, signal_packet.code)
         elif signal_packet.code == 2:
             self.distance_label.setText(str(signal_packet.distance)+" m")
             self.clock_label.distance = signal_packet.distance
             self.clock_label.isClock = False
+            self.bike_label.setPixmap(self.bike_pix_2_s)
             self.bike_label.setStyleSheet("Background: yellow;")
-            self.clock_label.setStyleSheet("Background: white;")
+            #self.clock_label.setStyleSheet("Background: white;")
             self.run_once(self.reset_bg, signal_packet.code)
         elif signal_packet.code == 3:
             self.distance_label.setText(str(signal_packet.distance)+" m")
             self.clock_label.distance = signal_packet.distance
             self.clock_label.isClock = False
+            self.crash_label.setPixmap(self.crash_pix_2_s)
             self.crash_label.setStyleSheet("Background: yellow;")
-            self.clock_label.setStyleSheet("Background: white;")
+            #self.clock_label.setStyleSheet("Background: white;")
             self.run_once(self.reset_bg, signal_packet.code)
 
   
     def reset_bg(self, code):
         self.clock_label.setStyleSheet("Background: lightgray;")
         if code == 0:
-            self.horn_label.setStyleSheet("Background: lightgray;")
+            self.horn_label.setPixmap(self.horn_pix_s)
+            self.horn_label.setStyleSheet("Background: white;")
         elif code == 1:
-            self.ciren_label.setStyleSheet("Background: lightgray;")
+            self.ciren_label.setPixmap(self.ciren_pix_s)
+            self.ciren_label.setStyleSheet("Background: white;")
         elif code == 2:
-            self.bike_label.setStyleSheet("Background: lightgray;")
+            self.bike_label.setPixmap(self.bike_pix_s)
+            self.bike_label.setStyleSheet("Background: white;")
         elif code == 3:
-            self.crash_label.setStyleSheet("Background: lightgray;")
+            self.crash_label.setPixmap(self.crash_pix_s)
+            self.crash_label.setStyleSheet("Background: white;")
         self.clock_label.isClock = True
 
     def run_once(self, func, code):  
