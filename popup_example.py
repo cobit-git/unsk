@@ -1,49 +1,38 @@
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QListWidget, QListWidgetItem, QLabel, QApplication, QDialog
 import sys
-# importing libraries
-from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 
-class MyPopup(QWidget):
+class ExampleWidget(QWidget):
+
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
+        listWidget = QListWidget(self)
+        listWidget.itemDoubleClicked.connect(self.buildExamplePopup)
+        for n in ["Jack", "Chris", "Joey", "Kim", "Duncan"]:
+            QListWidgetItem(n, listWidget)
+        self.setGeometry(100, 100, 100, 100)
+        self.show()
+        self.buildExamplePopupEx()
 
-    def paintEvent(self, e):
-        dc = QPainter(self)
-        dc.drawLine(0, 0, 100, 100)
-        dc.drawLine(100, 0, 0, 100)
+    @pyqtSlot(QListWidgetItem)
+    def buildExamplePopup(self, item):
+        exPopup = ExamplePopup(item.text(), self)
+        exPopup.setGeometry(100, 200, 100, 100)
+        exPopup.show()
 
-class MainWindow(QMainWindow):
-    def __init__(self, *args):
-        QMainWindow.__init__(self, *args)
-        self.cw = QWidget(self)
-        self.setCentralWidget(self.cw)
-        self.btn1 = QPushButton("Click me", self.cw)
-        self.btn1.setGeometry(QRect(0, 0, 100, 30))
-        self.connect(self.btn1, SIGNAL("clicked()"), self.doit)
-        self.w = None
+    def buildExamplePopupEx(self):
+        exPopup = ExamplePopup('hello', self)
+        exPopup.setGeometry(100, 200, 100, 100)
+        exPopup.show()
 
-    def doit(self):
-        print ("Opening a new popup window...")
-        self.w = MyPopup()
-        self.w.setGeometry(QRect(100, 100, 400, 200))
-        self.w.show()
+class ExamplePopup(QDialog):
 
-class App(QApplication):
-    def __init__(self, *args):
-        QApplication.__init__(self, *args)
-        self.main = MainWindow()
-        self.connect(self, SIGNAL("lastWindowClosed()"), self.byebye )
-        self.main.show()
-
-    def byebye( self ):
-        self.exit(0)
-
-def main(args):
-    global app
-    app = App(args)
-    app.exec_()
+    def __init__(self, name, parent=None):
+        super().__init__(parent)
+        self.name = name
+        self.label = QLabel(self.name, self)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    app = QApplication(sys.argv)
+    ex = ExampleWidget()
+    sys.exit(app.exec_())

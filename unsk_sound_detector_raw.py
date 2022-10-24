@@ -7,6 +7,7 @@ import sys
 import random
 import numpy as np
 
+from time_setting import TimeSetting
 from unsk_sound_thread import SoundDetector, UnskData
 from threading import Timer
 
@@ -159,6 +160,14 @@ class Unsk(QWidget):
         self.thread.sound_signal.connect(self.update_signal)
         self.thread.sound_signal.connect(self.wave_label.update_signal_wave)
         self.thread.start()
+
+        self.timeSetting()
+
+    def timeSetting(self):
+        exPopup = TimeSetting(self)
+        exPopup.setGeometry(100, 200, 100, 100)
+        exPopup.show()
+
     
     # method called by timer
     def showTime(self):
