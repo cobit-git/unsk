@@ -3,7 +3,18 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-class TimeSetting(QDialog):
+class TimeData:
+    def __init__(self):
+        self.hour = 0
+        self.min = 0
+        self.second = 0
+        self.sys_clock= True
+
+class TimeSetting(QDialog): 
+    
+    time_packet = TimeData()
+    time_signal = pyqtSignal(TimeData)
+    
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -126,7 +137,17 @@ class TimeSetting(QDialog):
         self.second_label.setText(str(self.sec))
 
     def use_sys_clk_btn_pressed(self):
-        print('use system time')
+        self.time_packet.hour = 0
+        self.time_packet.min = 0 
+        self.time_packet.second = 0 
+        self.time_packet.sys_clock  = True
+        self.time_signal.emit(self.time_packet)
+        self.close()
 
     def complete_time_set_btn_pressed(self):
-        print('complete time settig')
+        self.time_packet.hour = self.hour
+        self.time_packet.min = self.min 
+        self.time_packet.second = self.sec
+        self.time_packet.sys_clock  = False
+        self.time_signal.emit(self.time_packet)
+        self.close()

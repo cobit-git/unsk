@@ -7,7 +7,7 @@ import sys
 import random
 import numpy as np
 
-from time_setting import TimeSetting
+from time_setting import TimeSetting, TimeData
 from unsk_sound_thread import SoundDetector, UnskData
 from threading import Timer
 
@@ -22,6 +22,14 @@ class Unsk(QWidget):
         self.setWindowTitle('U&SK Sound Detector')
         #self.setGeometry(200, 200, 400, 800)
 
+        self.sys_clock = True
+        self.ui_run = False
+
+        self.hour = 0
+        self.min = 0
+        self.sec = 0
+
+
         # create the label that holds the digital clock
         font = QFont('Arial', 30, QFont.Bold)
         #self.d_clock_width = 200
@@ -35,10 +43,7 @@ class Unsk(QWidget):
         self.d_clock_label.setStyleSheet("background: lightgray;")
         #self.d_clock_label.move(0, 0)
         #self.d_clock_label.resize(self.d_clock_width, self.d_clock_height)
-        timer = QTimer(self)
-        timer.timeout.connect(self.showTime)
-        timer.start(1000)
-
+       
         # create the label that holds the distance
         #self.distance_width = 200
         #self.distance_height = 50
@@ -159,60 +164,80 @@ class Unsk(QWidget):
         self.thread = SoundDetector()
         self.thread.sound_signal.connect(self.update_signal)
         self.thread.sound_signal.connect(self.wave_label.update_signal_wave)
+        
+        self.timeSetting()
+        
+        timer = QTimer(self)
+        timer.timeout.connect(self.showTime)
+        timer.start(1000)
+
         self.thread.start()
 
-        self.timeSetting()
-
     def timeSetting(self):
-        exPopup = TimeSetting(self)
-        exPopup.setGeometry(100, 200, 100, 100)
-        exPopup.show()
+        timePopup = TimeSetting(self)
+        timePopup.time_signal.connect(self.update_time)
+        timePopup.setGeometry(100, 200, 100, 100)
+        timePopup.show()
 
     
     # method called by timer
     def showTime(self):
-  
-        # getting current time
-        current_time = QTime.currentTime()
-        # converting QTime object to string
-        label_time = current_time.toString('hh:mm:ss')
-        # showing it to the label
-        self.d_clock_label.setText(label_time)
+        if self.ui_run == True:
+            # getting current time
+            if self.sys_clock == True:
+                current_time = QTime.currentTime() 
+                # converting QTime object to string
+                label_time = current_time.toString('hh:mm:ss')
+                # showing it to the label
+                self.d_clock_label.setText(label_time)
+            else:
+                self.second += 1
+                if self.second > 59:
+                    self.min += 1
+                if self.min > 59:
+                    self.hour += 1
+                if self.hour > 23:
+                    self.hour = 0
+                self.d_clock_label.setText(str(self.hour)+':'+str(self.min)+':'+str(self.sec))
+           
+        else:
+            self.d_clock_label.setText('00:00:00')
 
     @pyqtSlot(UnskData)
     def update_signal(self, signal_packet):
-        if signal_packet.code == 0:
-            self.distance_label.setText(str(signal_packet.distance)+" m")
-            self.clock_label.distance = signal_packet.distance
-            self.clock_label.isClock = False
-            self.horn_label.setPixmap(self.horn_pix_2_s)
-            self.horn_label.setStyleSheet("Background: yellow;")
-            #self.clock_label.setStyleSheet("Background: white;")
-            self.run_once(self.reset_bg, signal_packet.code)
-        elif signal_packet.code == 1:
-            self.distance_label.setText(str(signal_packet.distance)+" m")
-            self.clock_label.distance = signal_packet.distance
-            self.clock_label.isClock = False
-            self.ciren_label.setPixmap(self.ciren_pix_2_s)
-            self.ciren_label.setStyleSheet("Background: yellow;")
-            #self.clock_label.setStyleSheet("Background: white;")
-            self.run_once(self.reset_bg, signal_packet.code)
-        elif signal_packet.code == 2:
-            self.distance_label.setText(str(signal_packet.distance)+" m")
-            self.clock_label.distance = signal_packet.distance
-            self.clock_label.isClock = False
-            self.bike_label.setPixmap(self.bike_pix_2_s)
-            self.bike_label.setStyleSheet("Background: yellow;")
-            #self.clock_label.setStyleSheet("Background: white;")
-            self.run_once(self.reset_bg, signal_packet.code)
-        elif signal_packet.code == 3:
-            self.distance_label.setText(str(signal_packet.distance)+" m")
-            self.clock_label.distance = signal_packet.distance
-            self.clock_label.isClock = False
-            self.crash_label.setPixmap(self.crash_pix_2_s)
-            self.crash_label.setStyleSheet("Background: yellow;")
-            #self.clock_label.setStyleSheet("Background: white;")
-            self.run_once(self.reset_bg, signal_packet.code)
+        if self.ui_run == True:
+            if signal_packet.code == 0:
+                self.distance_label.setText(str(signal_packet.distance)+" m")
+                self.clock_label.distance = signal_packet.distance
+                self.clock_label.isClock = False
+                self.horn_label.setPixmap(self.horn_pix_2_s)
+                self.horn_label.setStyleSheet("Background: yellow;")
+                #self.clock_label.setStyleSheet("Background: white;")
+                self.run_once(self.reset_bg, signal_packet.code)
+            elif signal_packet.code == 1:
+                self.distance_label.setText(str(signal_packet.distance)+" m")
+                self.clock_label.distance = signal_packet.distance
+                self.clock_label.isClock = False
+                self.ciren_label.setPixmap(self.ciren_pix_2_s)
+                self.ciren_label.setStyleSheet("Background: yellow;")
+                #self.clock_label.setStyleSheet("Background: white;")
+                self.run_once(self.reset_bg, signal_packet.code)
+            elif signal_packet.code == 2:
+                self.distance_label.setText(str(signal_packet.distance)+" m")
+                self.clock_label.distance = signal_packet.distance
+                self.clock_label.isClock = False
+                self.bike_label.setPixmap(self.bike_pix_2_s)
+                self.bike_label.setStyleSheet("Background: yellow;")
+                #self.clock_label.setStyleSheet("Background: white;")
+                self.run_once(self.reset_bg, signal_packet.code)
+            elif signal_packet.code == 3:
+                self.distance_label.setText(str(signal_packet.distance)+" m")
+                self.clock_label.distance = signal_packet.distance
+                self.clock_label.isClock = False
+                self.crash_label.setPixmap(self.crash_pix_2_s)
+                self.crash_label.setStyleSheet("Background: yellow;")
+                #self.clock_label.setStyleSheet("Background: white;")
+                self.run_once(self.reset_bg, signal_packet.code)
 
   
     def reset_bg(self, code):
@@ -235,10 +260,24 @@ class Unsk(QWidget):
         t=Timer(3, func, [code])  
         t.start()#Here run is called  
 
+    @pyqtSlot(TimeData)
+    def update_time(self, TimeData):
+        print(TimeData.hour, TimeData.min, TimeData.second, TimeData.sys_clock)
+        self.ui_run = True
+        self.sys_clock = TimeData.sys_clock
+        self.hour = TimeData.hour
+        self.min = TimeData.min
+        self.second = TimeData.second
+        self.clock_label.set_work(True)
+        self.wave_label.set_work(True)
+
 class Clock(QLabel):
     # constructor
     def __init__(self):
         super().__init__()
+
+        self.ui_run = False
+
         timer = QTimer(self)
         timer.timeout.connect(self.update)
         timer.start(100)
@@ -262,7 +301,11 @@ class Clock(QLabel):
 
         self.isClock = True
 
+    def set_work(self, flag):
+        self.ui_run = flag
+
     def paintEvent(self, event):
+        
         # so that clock remain square
         rec = min(self.width(), self.height())
         #if self.isClock: 
@@ -292,9 +335,26 @@ class Clock(QLabel):
         painter.setPen(QtCore.Qt.NoPen)
         # draw each hand
         if self.isClock == True:
-            drawPointer(self.hColor, (30 * (tik.hour() + tik.minute() / 60)), self.hPointer)
-            drawPointer(self.mColor, (6 * (tik.minute() + tik.second() / 60)), self.mPointer)
-            drawPointer(self.sColor, (6 * tik.second()), self.sPointer)
+            if self.ui_run == True:
+                if self.sys_clock == True:
+                    drawPointer(self.hColor, (30 * (tik.hour() + tik.minute() / 60)), self.hPointer)
+                    drawPointer(self.mColor, (6 * (tik.minute() + tik.second() / 60)), self.mPointer)
+                    drawPointer(self.sColor, (6 * tik.second()), self.sPointer)
+                else:
+                    self.second += 1
+                    if self.second > 59:
+                        self.min += 1
+                    if self.min > 59:
+                        self.hour += 1
+                    if self.hour > 23:
+                        self.hour = 0
+                    drawPointer(self.hColor, (30 * (self.hour + self.min / 60)), self.hPointer)
+                    drawPointer(self.mColor, (6 * (self.min + self.sec / 60)), self.mPointer)
+                    drawPointer(self.sColor, (6 * self.sec), self.sPointer)
+            else:
+                drawPointer(self.hColor, 0, self.hPointer)
+                drawPointer(self.mColor, 0, self.mPointer)
+                drawPointer(self.sColor, 0, self.sPointer)
         else:
             drawPointer(self.dColor, self.distance * 2, self.dPointer)
         # drawing background
@@ -322,12 +382,14 @@ class Clock(QLabel):
         # ending the painter
         painter.end()
 
+
     
 class Wave(QLabel):
     def __init__(self):
         super().__init__()
         self.sound = np.ones(100)
         self.isUniqueSound = False
+        self.ui_run = False
    
     def paintEvent(self, event):
         self.painter = QPainter()
@@ -341,18 +403,22 @@ class Wave(QLabel):
         for i in range(1, 100):
             self.painter.drawLine(5*i, 100-5, 5*i, 100-self.sound[i])
 
+    def set_work(self, flag):
+        self.ui_run = flag
+
     @pyqtSlot(UnskData)  # receive unsk sound detector event 
     def update_signal_wave(self, signal_packet):
-        # NOT detecting status 
-        if signal_packet.code == 4 and self.isUniqueSound == False:
-            self.sound = signal_packet.sound
-            self.update()  # to call paintEvent()
-        # detecting status 
-        elif self.isUniqueSound == False:
-            self.isUniqueSound = True
-            self.sound = signal_packet.sound
-            self.run_once(self.clear_unique)
-            self.update() 
+        if self.ui_run == True:
+            # NOT detecting status 
+            if signal_packet.code == 4 and self.isUniqueSound == False:
+                self.sound = signal_packet.sound
+                self.update()  # to call paintEvent()
+            # detecting status 
+            elif self.isUniqueSound == False:
+                self.isUniqueSound = True
+                self.sound = signal_packet.sound
+                self.run_once(self.clear_unique)
+                self.update() 
         
     def run_once(self, func):  
         t=Timer(3, func)  
