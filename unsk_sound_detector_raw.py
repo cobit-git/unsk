@@ -27,7 +27,7 @@ class Unsk(QWidget):
 
         self.hour = 0
         self.min = 0
-        self.sec = 0
+        self.second = 0
 
 
         # create the label that holds the digital clock
@@ -65,9 +65,9 @@ class Unsk(QWidget):
         self.horn_label = QLabel(self)
         self.horn_label.setMinimumHeight(100)
         self.horn_label.setMinimumWidth(100)
-        self.horn_pix = QPixmap('claxon1.png')
+        self.horn_pix = QPixmap('./image/claxon1.png')
         self.horn_pix_s = self.horn_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.horn_pix_2 = QPixmap('claxon3.png')
+        self.horn_pix_2 = QPixmap('./image/claxon3.png')
         self.horn_pix_2_s = self.horn_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.horn_label.setPixmap(self.horn_pix_s)
         self.horn_label.setAlignment(Qt.AlignCenter)
@@ -81,9 +81,9 @@ class Unsk(QWidget):
         self.ciren_label = QLabel(self)
         self.ciren_label.setMinimumHeight(100)
         self.ciren_label.setMinimumWidth(100)
-        self.ciren_pix = QPixmap('siren1.png')
+        self.ciren_pix = QPixmap('./image/siren1.png')
         self.ciren_pix_s = self.ciren_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.ciren_pix_2 = QPixmap('siren3.png')
+        self.ciren_pix_2 = QPixmap('./image/siren3.png')
         self.ciren_pix_2_s = self.ciren_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.ciren_label.setPixmap(self.ciren_pix_s)
         self.ciren_label.setAlignment(Qt.AlignCenter)
@@ -97,9 +97,9 @@ class Unsk(QWidget):
         self.bike_label = QLabel(self)
         self.bike_label.setMinimumHeight(100)
         self.bike_label.setMinimumWidth(100)
-        self.bike_pix = QPixmap('motorcycle1.png')
+        self.bike_pix = QPixmap('./image/motorcycle1.png')
         self.bike_pix_s = self.bike_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.bike_pix_2 = QPixmap('motorcycle3.png')
+        self.bike_pix_2 = QPixmap('./image/motorcycle3.png')
         self.bike_pix_2_s = self.bike_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.bike_label.setPixmap(self.bike_pix_s)
         self.bike_label.setAlignment(Qt.AlignCenter)
@@ -113,9 +113,9 @@ class Unsk(QWidget):
         self.crash_label = QLabel(self)
         self.crash_label.setMinimumHeight(100)
         self.crash_label.setMinimumWidth(100)
-        self.crash_pix = QPixmap('carcrash1.png')
+        self.crash_pix = QPixmap('./image/carcrash1.png')
         self.crash_pix_s = self.crash_pix.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.crash_pix_2 = QPixmap('carcrash3.png')
+        self.crash_pix_2 = QPixmap('./image/carcrash3.png')
         self.crash_pix_2_s = self.crash_pix_2.scaled(80, 80, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.crash_label.setPixmap(self.crash_pix_s)
         self.crash_label.setAlignment(Qt.AlignCenter)
@@ -191,14 +191,18 @@ class Unsk(QWidget):
                 # showing it to the label
                 self.d_clock_label.setText(label_time)
             else:
+                current_time = QTime.currentTime() 
                 self.second += 1
                 if self.second > 59:
                     self.min += 1
+                    self.second = 0
                 if self.min > 59:
                     self.hour += 1
+                    self.min = 0
                 if self.hour > 23:
                     self.hour = 0
-                self.d_clock_label.setText(str(self.hour)+':'+str(self.min)+':'+str(self.sec))
+                
+                self.d_clock_label.setText(str(self.hour).zfill(2)+':'+str(self.min).zfill(2)+':'+str(self.second).zfill(2))
            
         else:
             self.d_clock_label.setText('00:00:00')
@@ -226,6 +230,7 @@ class Unsk(QWidget):
                 self.distance_label.setText(str(signal_packet.distance)+" m")
                 self.clock_label.distance = signal_packet.distance
                 self.clock_label.isClock = False
+        
                 self.bike_label.setPixmap(self.bike_pix_2_s)
                 self.bike_label.setStyleSheet("Background: yellow;")
                 #self.clock_label.setStyleSheet("Background: white;")
@@ -270,6 +275,8 @@ class Unsk(QWidget):
         self.second = TimeData.second
         self.clock_label.set_work(True)
         self.wave_label.set_work(True)
+        self.clock_label.set_sys_clock(TimeData.sys_clock)
+        self.clock_label.time_setting(TimeData.hour, TimeData.min, TimeData.second)
 
 class Clock(QLabel):
     # constructor
@@ -277,10 +284,19 @@ class Clock(QLabel):
         super().__init__()
 
         self.ui_run = False
+        self.sys_clock = False
+
+        self.hour = 0
+        self.min = 0
+        self.second = 0
 
         timer = QTimer(self)
         timer.timeout.connect(self.update)
-        timer.start(100)
+        timer.start(1000)
+
+        timer2 = QTimer(self)
+        timer2.timeout.connect(self.timer2_clock)
+        timer2.start(1000)
 
         # creating hour hand
         self.hPointer = QtGui.QPolygon([QPoint(3, 7),QPoint(-3, 7),QPoint(-3, -50), QPoint(3, -50)])
@@ -301,11 +317,31 @@ class Clock(QLabel):
 
         self.isClock = True
 
+    def timer2_clock(self):
+        self.second += 1
+        if self.second > 59:
+            self.min += 1
+            self.second = 0
+        if self.min > 59:
+            self.hour += 1
+            self.min = 0
+        if self.hour > 23:
+            self.hour = 0
+
+
+    def set_sys_clock(self, flag):
+        self.sys_clock = flag 
+
+    def time_setting(self, hour, min, sec):
+        self.hour = hour
+        self.min = min 
+        self.second = sec 
+
+
     def set_work(self, flag):
         self.ui_run = flag
 
     def paintEvent(self, event):
-        
         # so that clock remain square
         rec = min(self.width(), self.height())
         #if self.isClock: 
@@ -334,23 +370,19 @@ class Clock(QLabel):
         # set current pen as no pen
         painter.setPen(QtCore.Qt.NoPen)
         # draw each hand
+        
         if self.isClock == True:
             if self.ui_run == True:
                 if self.sys_clock == True:
                     drawPointer(self.hColor, (30 * (tik.hour() + tik.minute() / 60)), self.hPointer)
                     drawPointer(self.mColor, (6 * (tik.minute() + tik.second() / 60)), self.mPointer)
                     drawPointer(self.sColor, (6 * tik.second()), self.sPointer)
+                    #print(tik.hour(), tik.minute(), tik.second())
                 else:
-                    self.second += 1
-                    if self.second > 59:
-                        self.min += 1
-                    if self.min > 59:
-                        self.hour += 1
-                    if self.hour > 23:
-                        self.hour = 0
                     drawPointer(self.hColor, (30 * (self.hour + self.min / 60)), self.hPointer)
-                    drawPointer(self.mColor, (6 * (self.min + self.sec / 60)), self.mPointer)
-                    drawPointer(self.sColor, (6 * self.sec), self.sPointer)
+                    drawPointer(self.mColor, (6 * (self.min + self.second / 60)), self.mPointer)
+                    drawPointer(self.sColor, (6 * self.second), self.sPointer)
+                    
             else:
                 drawPointer(self.hColor, 0, self.hPointer)
                 drawPointer(self.mColor, 0, self.mPointer)

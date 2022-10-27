@@ -34,29 +34,34 @@ class TimeSetting(QDialog):
 
         self.hour_label = QLabel(self)
         self.hour_label.setFont(font)
-        self.hour_label.setText(str(12))
+        self.hour_label.setText(str(12).zfill(2))
+        self.hour_label.setAlignment(Qt.AlignCenter)
 
         self.colon_label = QLabel(self)
         self.colon_label.setFont(font)
         self.colon_label.setText(':')
+        self.colon_label.setAlignment(Qt.AlignCenter)
 
         self.min_btn_up = QPushButton('UP')
         self.min_btn_down = QPushButton('DOWN')
 
         self.min_label = QLabel(self)
         self.min_label.setFont(font)
-        self.min_label.setText(str(00))
+        self.min_label.setText(str(00).zfill(2))
+        self.min_label.setAlignment(Qt.AlignCenter)
 
         self.colon_label2 = QLabel(self)
         self.colon_label2.setFont(font)
         self.colon_label2.setText(':')
+        self.colon_label2.setAlignment(Qt.AlignCenter)
 
         self.sec_btn_up = QPushButton('UP')
         self.sec_btn_down = QPushButton('DOWN')
 
         self.second_label = QLabel(self)
         self.second_label.setFont(font)
-        self.second_label.setText(str(00))
+        self.second_label.setText(str(00).zfill(2))
+        self.second_label.setAlignment(Qt.AlignCenter)
 
         self.hour_btn_up.clicked.connect(self.hour_btn_up_pressed)
         self.hour_btn_down.clicked.connect(self.hour_btn_down_pressed)
@@ -104,37 +109,37 @@ class TimeSetting(QDialog):
         self.hour += 1
         if self.hour > 24:
             self.hour = 0
-        self.hour_label.setText(str(self.hour))
+        self.hour_label.setText(str(self.hour).zfill(2))
 
     def hour_btn_down_pressed(self):
         self.hour -= 1
         if self.hour < 0:
             self.hour = 23
-        self.hour_label.setText(str(self.hour))
+        self.hour_label.setText(str(self.hour).zfill(2))
 
     def min_btn_up_pressed(self):
         self.min += 1
         if self.min > 60:
             self.min = 0
-        self.min_label.setText(str(self.min))
+        self.min_label.setText(str(self.min).zfill(2))
 
     def min_btn_down_pressed(self):
         self.min -= 1
         if self.min < 0:
             self.min = 59
-        self.min_label.setText(str(self.min))
+        self.min_label.setText(str(self.min).zfill(2))
 
     def sec_btn_up_pressed(self):
         self.sec += 1
         if self.sec > 60:
             self.sec = 0
-        self.second_label.setText(str(self.sec))
+        self.second_label.setText(str(self.sec).zfill(2))
 
     def sec_btn_down_pressed(self):
         self.sec -= 1
         if self.sec < 0:
             self.sec = 59
-        self.second_label.setText(str(self.sec))
+        self.second_label.setText(str(self.sec).zfill(2))
 
     def use_sys_clk_btn_pressed(self):
         self.time_packet.hour = 0
