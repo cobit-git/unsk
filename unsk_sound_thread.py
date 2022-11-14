@@ -9,6 +9,7 @@ class UnskData:
         self.sound = np.zeros(100)
         self.code = 0
         self.distance = 0
+        self.angle = 0
 
 class SoundDetector(QThread):
 
@@ -30,6 +31,7 @@ class SoundDetector(QThread):
             if self.count > 1000: 
                 self.signal_packet.code  =  random.randint(0, 3)
                 self.signal_packet.distance = random.randint(50,130)
+                self.signal_packet.angle = random.randint(0, 360)
                 for i in range(100):
                     self.signal_packet.sound[i] = random.randint(10, 90)
                 self.sound_signal.emit(self.signal_packet)

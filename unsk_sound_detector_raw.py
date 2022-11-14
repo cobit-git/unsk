@@ -1,3 +1,4 @@
+#  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
 # importing libraries
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
@@ -6,6 +7,7 @@ from PyQt5.QtCore import *
 import sys
 import random
 import numpy as np
+import math
 
 from time_setting import TimeSetting, TimeData
 from unsk_sound_thread import SoundDetector, UnskData
@@ -19,7 +21,7 @@ class Unsk(QWidget):
         super().__init__()
 
         # setting window title
-        self.setWindowTitle('U&SK Sound Detector')
+        self.setWindowTitle('US&K Sound Detector')
         #self.setGeometry(200, 200, 400, 800)
 
         self.sys_clock = True
@@ -31,7 +33,7 @@ class Unsk(QWidget):
 
 
         # create the label that holds the digital clock
-        font = QFont('Arial', 30, QFont.Bold)
+        font = QFont('Arial', 30)
         #self.d_clock_width = 200
         #self.d_clock_height = 50
         
@@ -215,7 +217,7 @@ class Unsk(QWidget):
                 self.clock_label.distance = signal_packet.distance
                 self.clock_label.isClock = False
                 self.horn_label.setPixmap(self.horn_pix_2_s)
-                self.horn_label.setStyleSheet("Background: yellow;")
+                #self.horn_label.setStyleSheet("Background: yellow;")
                 #self.clock_label.setStyleSheet("Background: white;")
                 self.run_once(self.reset_bg, signal_packet.code)
             elif signal_packet.code == 1:
@@ -223,7 +225,7 @@ class Unsk(QWidget):
                 self.clock_label.distance = signal_packet.distance
                 self.clock_label.isClock = False
                 self.ciren_label.setPixmap(self.ciren_pix_2_s)
-                self.ciren_label.setStyleSheet("Background: yellow;")
+                #self.ciren_label.setStyleSheet("Background: yellow;")
                 #self.clock_label.setStyleSheet("Background: white;")
                 self.run_once(self.reset_bg, signal_packet.code)
             elif signal_packet.code == 2:
@@ -232,7 +234,7 @@ class Unsk(QWidget):
                 self.clock_label.isClock = False
         
                 self.bike_label.setPixmap(self.bike_pix_2_s)
-                self.bike_label.setStyleSheet("Background: yellow;")
+                #self.bike_label.setStyleSheet("Background: yellow;")
                 #self.clock_label.setStyleSheet("Background: white;")
                 self.run_once(self.reset_bg, signal_packet.code)
             elif signal_packet.code == 3:
@@ -240,7 +242,7 @@ class Unsk(QWidget):
                 self.clock_label.distance = signal_packet.distance
                 self.clock_label.isClock = False
                 self.crash_label.setPixmap(self.crash_pix_2_s)
-                self.crash_label.setStyleSheet("Background: yellow;")
+                #self.crash_label.setStyleSheet("Background: yellow;")
                 #self.clock_label.setStyleSheet("Background: white;")
                 self.run_once(self.reset_bg, signal_packet.code)
 
@@ -298,6 +300,8 @@ class Clock(QLabel):
         timer2.timeout.connect(self.timer2_clock)
         timer2.start(1000)
 
+        self.direction_img = QPixmap('./image/bar.png')
+
         # creating hour hand
         self.hPointer = QtGui.QPolygon([QPoint(3, 7),QPoint(-3, 7),QPoint(-3, -50), QPoint(3, -50)])
         # creating minute hand
@@ -307,11 +311,11 @@ class Clock(QLabel):
         # color for minute and hour hand
         self.dPointer = QPolygon([QPoint(2, 9),QPoint(-2, 9),QPoint(-2, -80), QPoint(2, -80)])
         # color for minute and hour hand
-        self.hColor = Qt.red
+        self.hColor = Qt.blue
         self.mColor = Qt.blue
-        self.sColor = Qt.yellow
+        self.sColor = Qt.red
         self.bColor = Qt.black
-        self.dColor = Qt.green
+        self.dColor = Qt.red
 
         self.distance  = 0
 
@@ -388,6 +392,8 @@ class Clock(QLabel):
                 drawPointer(self.mColor, 0, self.mPointer)
                 drawPointer(self.sColor, 0, self.sPointer)
         else:
+            painter.rotate(self.distance*2)
+            painter.drawPixmap(self.rect(),self.direction_img)
             drawPointer(self.dColor, self.distance * 2, self.dPointer)
         # drawing background
         painter.setPen(QPen(self.bColor))
@@ -397,19 +403,23 @@ class Clock(QLabel):
                 # drawing background lines
                 if (i % 5) == 0:
                     painter.drawLine(87, 0, 97, 0)
+                else:
+                    painter.drawLine(92, 0, 97, 0)
                 # rotating the painter
                 painter.rotate(6)
                 painter.setBrush(QBrush(self.bColor))
-                painter.drawEllipse(-5, -5, 10, 10)
+                painter.drawEllipse(-5, -5, 12, 12)
         else:
             for i in range(0, 60):
                 # drawing background lines
-                if (i % 2) == 0:
+                if (i % 5) == 0:
                     painter.drawLine(87, 0, 97, 0)
+                else:
+                    painter.drawLine(92, 0, 97, 0)
                 # rotating the painter
                 painter.rotate(6)
                 painter.setBrush(QBrush(self.hColor))
-                painter.drawEllipse(-5, -5, 10, 10)
+                #painter.drawEllipse(-5, -5, 10, 10)
     
         # ending the painter
         painter.end()
