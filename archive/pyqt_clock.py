@@ -51,6 +51,7 @@ class Clock(QMainWindow):
 
 		# color for second hand
 		self.sColor = Qt.red
+		self.clock_img = QtGui.QPixmap('../image/bar.png') 
 
 	# method for paint event
 	def paintEvent(self, event):

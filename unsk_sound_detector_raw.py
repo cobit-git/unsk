@@ -21,7 +21,8 @@ class Unsk(QWidget):
         super().__init__()
 
         # setting window title
-        self.setWindowTitle('US&K Sound Detector')
+        self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setWindowTitle('no title')
         #self.setGeometry(200, 200, 400, 800)
 
         self.sys_clock = True
@@ -373,8 +374,9 @@ class Clock(QLabel):
         painter.scale(rec / 200, rec / 200)
         # set current pen as no pen
         painter.setPen(QtCore.Qt.NoPen)
+        painter.setPen(QPen(QBrush(Qt.transparent), 1))
         # draw each hand
-        
+        painter.save()
         if self.isClock == True:
             if self.ui_run == True:
                 if self.sys_clock == True:
@@ -396,15 +398,21 @@ class Clock(QLabel):
             painter.drawPixmap(self.rect(),self.direction_img)
             drawPointer(self.dColor, self.distance * 2, self.dPointer)
         # drawing background
+        painter.restore()
         painter.setPen(QPen(self.bColor))
         # for loop
         if self.isClock == True:
+            
             for i in range(0, 60):
                 # drawing background lines
                 if (i % 5) == 0:
+                    painter.setPen(QPen(QBrush(Qt.black), 3))
                     painter.drawLine(87, 0, 97, 0)
+                    painter.setPen(QPen(QBrush(Qt.transparent), 1))
                 else:
+                    painter.setPen(QPen(QBrush(Qt.black), 1))
                     painter.drawLine(92, 0, 97, 0)
+                    painter.setPen(QPen(QBrush(Qt.transparent), 1))
                 # rotating the painter
                 painter.rotate(6)
                 painter.setBrush(QBrush(self.bColor))
@@ -413,9 +421,13 @@ class Clock(QLabel):
             for i in range(0, 60):
                 # drawing background lines
                 if (i % 5) == 0:
+                    painter.setPen(QPen(QBrush(Qt.black), 3))
                     painter.drawLine(87, 0, 97, 0)
+                    painter.setPen(QPen(QBrush(Qt.transparent), 1))
                 else:
+                    painter.setPen(QPen(QBrush(Qt.black), 1))
                     painter.drawLine(92, 0, 97, 0)
+                    painter.setPen(QPen(QBrush(Qt.transparent), 1))
                 # rotating the painter
                 painter.rotate(6)
                 painter.setBrush(QBrush(self.hColor))
