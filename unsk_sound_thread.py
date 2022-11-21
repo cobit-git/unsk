@@ -13,16 +13,18 @@ class UnskData:
 
 class SoundDetector(QThread):
 
-    signal_packet = UnskData()
+    
     sound_signal= pyqtSignal(UnskData)
-
     def __init__(self):
         super().__init__()
         self.run_flag = True
         self.count = 0
+        self.signal_packet = UnskData()
+        
+
 
     def run(self):
-        sound_common = []
+        sound_common = [] 
         for i in range(100):
             sound_common.append(random.randint(10, 90))
         while self.run_flag:
