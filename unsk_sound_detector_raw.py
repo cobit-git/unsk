@@ -455,7 +455,7 @@ class Wave(QLabel):
         pen = QPen(Qt.black, 3)
         self.painter.setPen(pen)
         for i in range(1, 100):
-            self.painter.drawLine(5*i, 100-5, 5*i, 100-self.sound[i])
+            self.painter.drawLine(int(5*i), int(100-5), int(5*i), int(100-self.sound[i]))
 
     def set_work(self, flag):
         self.ui_run = flag
